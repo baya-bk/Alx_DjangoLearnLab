@@ -4,7 +4,7 @@ from .models import Book
 from .models import Library
 
 
-def book_list(request):
+def list_books(request):
     """Function-based view to list all books"""
     books = Book.objects.all().select_related('author')
     return render(request, 'relationship_app/list_books.html', {
