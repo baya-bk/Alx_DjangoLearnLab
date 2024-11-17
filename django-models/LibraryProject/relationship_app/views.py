@@ -1,3 +1,5 @@
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login, logout
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -26,17 +28,39 @@ class LibraryDetailView(DetailView):
         return Library.objects.prefetch_related('books__author')
 
 
-def register(request):
+# User Login View
+
+def login_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('relationship_app:login')
+            user = form.get_user()
+            login(request, user)
+            # Change to your desired post-login view
+            return redirect('relationship_app:book_list')
     else:
-        form = UserCreationForm()
-    return render(request, 'relationship_app/register.html', {'form': form})
+        form = AuthenticationForm()
+    return render(request, 'relationship_app/login.html', {'form': form})
+
+# User Logout View
 
 
 @login_required
 def logout_view(request):
-    return render(request, 'relationship_app/logout.html')
+    logout(request)
+    return redirect('relationship_app:login')
+
+# User Registration View
+
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            # Redirect after successful registration
+            return redirect('relationship_app:book_list')
+    else:
+        form = UserCreationForm()
+    return render(request, 'relationship_app/register.html', {'form': form})
