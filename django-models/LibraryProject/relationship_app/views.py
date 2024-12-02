@@ -1,3 +1,4 @@
+from .models import Book, Author  # Import your models
 from .models import UserProfile
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -10,6 +11,8 @@ from django.shortcuts import render
 from django.views.generic.detail import DetailView
 from .models import Book
 from .models import Library
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import permission_required
 
 
 def list_books(request):
@@ -109,3 +112,55 @@ def librarian_view(request):
 @user_passes_test(is_member)
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
+# relationship_app/views.py
+
+
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        # Assuming you have a way to select authors
+        author_id = request.POST.get('author')
+        publication_date = request.POST.get('publication_date')
+
+        if title and author_id and publication_date:
+            # Fetch the author instance
+            author = Author.objects.get(id=author_id)
+            Book.objects.create(title=title, author=author,
+                                publication_date=publication_date)
+            # Redirect after saving
+            return redirect('relationship_app:book_list')
+
+    # Render an empty form or instructions
+    return render(request, 'relationship_app/add_book.html')
+
+
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        author_id = request.POST.get('author')
+        publication_date = request.POST.get('publication_date')
+
+        if title and author_id and publication_date:
+            author = Author.objects.get(id=author_id)
+            book.title = title
+            book.author = author
+            book.publication_date = publication_date
+            book.save()
+            return redirect('relationship_app:book_list')
+
+    return render(request, 'relationship_app/edit_book.html', {'book': book})
+
+
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+
+    if request.method == 'POST':
+        book.delete()
+        return redirect('relationship_app:book_list')
+
+    return render(request, 'relationship_app/delete_book.html', {'book': book})

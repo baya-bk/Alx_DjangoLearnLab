@@ -1,3 +1,5 @@
+# Ensure all views are imported
+from .views import add_book, edit_book, delete_book, list_books
 from django.contrib.auth import views as auth_views
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
@@ -20,4 +22,9 @@ urlpatterns = [
     path('librarian/', librarian_view,
          name='librarian_view'),  # Librarian view URL
     path('member/', member_view, name='member_view'),  # Member view URL
+    path('books/add/', add_book, name='add_book'),  # Add a new book
+    path('books/edit/<int:pk>/', edit_book,
+         name='edit_book'),  # Edit a specific book
+    path('books/delete/<int:pk>/', delete_book,
+         name='delete_book'),  # Delete a specific book
 ]
