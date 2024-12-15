@@ -15,11 +15,23 @@ class BookAdmin(admin.ModelAdmin):
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('date_of_birth', 'profile_photo')}),
+    list_display = ('username', 'email', 'date_of_birth',
+                    'is_staff', 'is_active')
+    search_fields = ('username', 'email')
+    ordering = ('username',)
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal Info', {
+         'fields': ('email', 'date_of_birth', 'profile_photo')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active',
+         'is_superuser', 'groups', 'user_permissions')}),
+        ('Important Dates', {'fields': ('last_login', 'date_joined')}),
     )
-    add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('date_of_birth', 'profile_photo')}),
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2', 'date_of_birth', 'profile_photo', 'is_staff', 'is_active')}
+         ),
     )
 
 
