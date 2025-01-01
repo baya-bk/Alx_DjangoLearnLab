@@ -25,8 +25,24 @@ LOGIN_REDIRECT_URL = '/books/'  # Redirects to the list_books view after login
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-t=anmev13xp013%d0pf*+a*qad!l(qas3@@o93+n3s^&egwuu6'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set to False for production
+DEBUG = False
+
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Secure cookies
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Example for adding CSP (requires middleware)
+CSP_DEFAULT_SRC = ("'self'",)  # Restrict to same-origin
+CSP_SCRIPT_SRC = ("'self'",)  # Scripts only from same-origin
+# Styles from same-origin, allow inline
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+
 
 ALLOWED_HOSTS = []
 
@@ -42,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf',  # Added line
     'relationship_app',
+    'csp',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
